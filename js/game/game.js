@@ -7,19 +7,21 @@ var style;
 
 function preload() {
 	game.load.image('background','/game/asset/background.png');
-	game.load.image('logoSml','/game/asset/logoSmall.png');
+	game.load.image('board','/game/asset/board.png');
+	game.load.image('logo','/game/asset/logo.png');
 }
 
 function create() {
 
 
 	game.add.sprite(0,0,'background');
-	game.add.sprite(25,25,'logoSml');
+	game.add.sprite(0,0,'board');
+	game.add.sprite(25,25,'logo');
 
 	style = { font: "15px Arial", fill: "#333333", align: "right" };
     text = game.add.text(game.world.centerY, 570, version, style);
+
+    console.log("[created]");
 }
 
-function update() {
-	console.log("[update]");
-}
+function update() {}
