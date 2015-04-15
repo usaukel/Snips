@@ -6,9 +6,9 @@ var style;
  var text;
 
 function preload() {
-	game.load.image('background','/game/asset/background.png');
-	game.load.image('board','/game/asset/board.png');
-	game.load.image('logo','/game/asset/logo.png');
+	game.load.image('background','/game/assets/images/background.png');
+	game.load.image('board','/game/assets/imagesboard.png');
+	game.load.image('logo','/game/assets/imageslogo.png');
 }
 
 function create() {
