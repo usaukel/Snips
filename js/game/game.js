@@ -1,6 +1,6 @@
 //javascript
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-var version = "[Summer is coming] - Demo Game - Ulrich.Saukel - 15/04/2015";
+var version = "V1.0 -[Summer is coming] - Demo Game - Ulrich.Saukel - 15/04/2015";
 var gameContainer;
 var style;
 var text;
@@ -26,8 +26,8 @@ function create() {
 	game.add.sprite(0,0,'board');
 	game.add.sprite(575,124,'logo');
 
-	style = { font: "17px Arial", fill: "#ffffff", align: "right" };
-    text = game.add.text(game.world.centerY, 570, version, style);
+	style = { font: "16px Arial", fill: "#ffffff", align: "right" };
+    text = game.add.text(game.world.centerY, 575, version, style);
 
     console.log("[created]");
 }
