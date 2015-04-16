@@ -12,9 +12,10 @@ var maxBet = 2;
 var jackpotAmount = 500;
 var bankAmount = 100;
 var wonAmount =0;
+var gameRatio = 0.25;
 // data --------------------------------------
 var jsonData;
-
+// assets ------------------------------------
 var board;
 var background;
 var logo;
@@ -24,22 +25,24 @@ var bet;
 var payTable;
 var jackpotField;
 var reelBackGround;
-
+// text fields --------------------------------
 var wintxt;
 var banktxt;
 var betTxt;
 var jackpotTxt;
-
-
+// buttons-------------------------------------
 var playBtn;
 var betPlusBtn;
 var betMinusBtn;
 var maxBetBtn;
-
+// audio --------------------------------------
 var betAudio;
 var clink;
 var reelSpinAudio;
 var payOffAudio;
+// math && probabilities ---------------------------------------
+var wagerChance;
+
 
 function preload() {
 	//bitmap atlas definition
@@ -62,13 +65,14 @@ function preload() {
 
 function create() {
 
-	// Check for Data load
+	// Check for Data load --- firsty test of json data load in Phaser
 	jsonData = JSON.parse(game.cache.getText('data'));
 	game.cache._text['data'] = JSON.parse(game.cache.getText('data'));
 
 	var sy = game.cache.getText('data').symbols.symbol;
-
 	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
+	//---------------------------------------------------------------
+
 
 	// background music ----------------------------------
 	soundtrack = game.add.audio('summer');
@@ -121,6 +125,7 @@ function create() {
 	jackpotTxt = game.add.bitmapText(70,70,'Kcap',accounting.formatMoney(jackpotAmount),35);
 	betTxt = game.add.bitmapText(420,465,'Kcap',accounting.formatMoney(betAmount),32);
 	wintxt = game.add.bitmapText(420,532,'Kcap',accounting.formatMoney(wonAmount),32);
+	wintxt.alpha = 0;
 	banktxt = game.add.bitmapText(580,533,'Kcap',accounting.formatMoney(bankAmount),32);
 
 
@@ -137,26 +142,53 @@ function create() {
 
 function actionPlay(){
 	console.log("[Play button]");
+	setChance();
 	clink.play();
 };
 function actionMaxBet(){
 	console.log("[actionMaxBet button]");
+	if(bankAmount > 2)betAmount = 2;
+	updateBetField()
 	betAudio.play();
 };
 function incrBet(){
 	console.log("[bet increase button]");
+	betlogic(1);
 	betAudio.play();
 };
 
 function decrBet(){
 	console.log("[bet decrease button]");
+	betlogic(0);
 	betAudio.play();
 };
 
 function jackpotIncrement(){
-	console.log("[jackpotIncrement] :: bitmap text update on timer")
 	jackpotAmount = jackpotAmount+0.01;
 	jackpotTxt.setText(accounting.formatMoney(jackpotAmount));
 	setTimeout(jackpotIncrement,1500);
 };
-//----------------------------------------------
+
+function updateBetField(){
+	betTxt.setText(accounting.formatMoney(betAmount));
+};
+
+function betlogic(id){
+	if(id === 1  && betAmount<2){
+		betAmount+=0.05;
+	};
+	if(id === 0){
+		if(betAmount < 0.10){
+			betAmount = 0.05;
+		}else{
+			betAmount-= 0.05;
+		}
+		
+	};
+	updateBetField();
+};
+//game math ----------------------------------
+function setChance(){
+	wagerChance = Math.round((betAmount/maxBet)*100)*gameRatio;
+	console.log("[setChance] :: trigger random win ::"+chance.bool({likelihood:wagerChance}));
+}
