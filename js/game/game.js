@@ -12,7 +12,8 @@ var maxBet = 2;
 var jackpotAmount = 500;
 var bankAmount = 100;
 var wonAmount =0;
-
+// data --------------------------------------
+var jsonData;
 
 var board;
 var background;
@@ -53,9 +54,21 @@ function preload() {
 	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
 	game.load.audio('spin',['/game/assets/sounds/spin_01.mp3','/game/assets/sounds/spin_01.ogg']);
 
+	// game data
+	game.load.text('data','/game/data/data.json');
+ 
+
 }
 
 function create() {
+
+	// Check for Data load
+	jsonData = JSON.parse(game.cache.getText('data'));
+	game.cache._text['data'] = JSON.parse(game.cache.getText('data'));
+
+	var sy = game.cache.getText('data').symbols.symbol;
+
+	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
 
 	// background music ----------------------------------
 	soundtrack = game.add.audio('summer');

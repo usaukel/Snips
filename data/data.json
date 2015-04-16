@@ -1,0 +1,114 @@
+{
+  "data": {
+    "symbols": {
+      "symbol": [
+        {
+          "id": "0",
+          "weight": "1",
+          "multiplier": "jackpot",
+          "text": "Diamond"
+        },
+        {
+          "id": "1",
+          "weight": "2",
+          "multiplier": "1000",
+          "text": "Seven"
+        },
+        {
+          "id": "2",
+          "weight": "3",
+          "multiplier": "500",
+          "text": "Bar"
+        },
+        {
+          "id": "3",
+          "weight": "5",
+          "multiplier": "250",
+         "text": "Summertime"
+        },
+        {
+          "id": "4",
+          "weight": "8",
+          "multiplier": "150",
+         "text": "Casino"
+        },
+        {
+          "id": "5",
+          "weight": "10",
+          "multiplier": "10",
+         "text": "Cherry"
+        },
+        {
+          "id": "6",
+          "weight": "50",
+          "multiplier": "2",
+         "text": "Strawberry"
+        },
+        {
+          "id": "7",
+          "weight": "100",
+          "multiplier": "0",
+         "text": "Plum"
+        },
+        {
+          "id": "8",
+          "weight": "100",
+          "multiplier": "0",
+         "text": "Plum"
+        },
+        {
+          "id": "9",
+          "weight": "200",
+          "multiplier": "0",
+         "text": "Orange"
+        },
+        {
+          "id": "10",
+          "weight": "300",
+          "multiplier": "0",
+         "text": "Melon"
+        },
+        {
+          "id": "11",
+          "weight": "15",
+          "multiplier": "0",
+         "text": "Bell"
+        },
+        {
+          "id": "12",
+          "weight": "15",
+          "multiplier": "0",
+         "text": "Lemon"
+        }
+      ]
+    },
+    "reels": {
+      "strip": [
+        {
+          "id": "0",
+          "symbol": [
+            "12",
+            "9",
+            "5"
+          ]
+        },
+        {
+          "id": "1",
+          "symbol": [
+            "8",
+            "6",
+            "2"
+          ]
+        },
+        {
+          "id": "2",
+          "symbol": [
+            "11",
+            "4",
+            "7"
+          ]
+        }
+      ]
+    }
+  }
+}
