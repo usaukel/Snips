@@ -7,6 +7,7 @@ var text;
 
 var soundtrack;
 var initialBet = 100;
+var initJackpot = 1000;
 
 var board;
 var background;
@@ -18,6 +19,12 @@ var payTable;
 var jackpotField;
 var reelBackGround;
 
+var wintxt;
+var banktxt;
+var betTxt;
+var jackpotTxt;
+
+
 var play;
 var betPlus;
 var betMinus;
@@ -25,7 +32,8 @@ var maxBet;
 
 function preload() {
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
-	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json')
+	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
+	game.load.bitmapFont('Kcap','/game/assets/fonts/Kcap.png','/game/assets/fonts/Kcap.fnt');
 	game.load.audio('summer',['/game/assets/sounds/Feel the Summer.mp3']);
 }
 
@@ -70,6 +78,12 @@ function create() {
 	maxBet = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down');
 	betPlus = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down');
 	betMinus = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down');
+	// Create dynamic bitmap text --------------------------------------------------
+
+	jackpotTxt = game.add.bitmapText(70,70,'Kcap','10000.00',35);
+	betTxt = game.add.bitmapText(420,465,'Kcap','0.25',32);
+	wintxt = game.add.bitmapText(420,530,'Kcap','0.00',32);
+	banktxt = game.add.bitmapText(605,532,'Kcap','0.00',32);
 
 	style = { font: "14px Arial", fill: "#cccccc", align: "right" };
     text = game.add.text(game.world.centerY, 580, version, style);
