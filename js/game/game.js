@@ -30,19 +30,39 @@ var betPlus;
 var betMinus;
 var maxBet;
 
+var betAudio;
+var clink;
+var reelSpinAudio;
+var payOffAudio;
+
 function preload() {
+	//bitmap atlas definition
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
 	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
 	game.load.bitmapFont('Kcap','/game/assets/fonts/Kcap.png','/game/assets/fonts/Kcap.fnt');
+
+	//TODO: json data file [sound atlas]
 	game.load.audio('summer',['/game/assets/sounds/Feel the Summer.mp3','/game/assets/sounds/Feel the Summer.ogg']);
+	game.load.audio('betSnd',['/game/assets/sounds/bet.mp3','/game/assets/sounds/bet.ogg']);
+	game.load.audio('payOff',['/game/assets/sounds/payoff.mp3','/game/assets/sounds/payoff.ogg']);
+	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
+	game.load.audio('spin',['/game/assets/sounds/spin_01.mp3','/game/assets/sounds/spin_01.ogg']);
+
 }
 
 function create() {
 
+	// background music ----------------------------------
 	soundtrack = game.add.audio('summer');
-	soundtrack.volume = 0.1;
+	soundtrack.volume = 0.2;
 	soundtrack.loop = true;
 	soundtrack.play();
+	// interface audio creation -------------------------
+	betAudio = game.add.audio('betSnd');
+	betAudio.volume = 0.3;
+	clink = game.add.audio('clink');
+	clink.volume = 0.5;
+
 
 	// asset definition -------------------------------
 
@@ -74,16 +94,18 @@ function create() {
 	reelBackGround.frameName ='reel_background.png';
 	
 	// create buttons --------------------------------------------
-	play = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down');
-	maxBet = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down');
-	betPlus = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down');
-	betMinus = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down');
+	play = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
+	maxBet = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down','maxBet_up');
+	betPlus = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down','betIncr_up');
+	betMinus = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
 	// Create dynamic bitmap text --------------------------------------------------
 
 	jackpotTxt = game.add.bitmapText(70,70,'Kcap','5000.00',35);
 	betTxt = game.add.bitmapText(420,465,'Kcap','0.25',32);
 	wintxt = game.add.bitmapText(420,530,'Kcap','0.00',32);
 	banktxt = game.add.bitmapText(605,532,'Kcap','0.00',32);
+
+
 
 	style = { font: "14px Arial", fill: "#cccccc", align: "right" };
     text = game.add.text(game.world.centerY, 580, version, style);
@@ -93,14 +115,18 @@ function create() {
 
 function actionPlay(){
 	console.log("[Play button]");
+	clink.play();
 };
 function actionMaxBet(){
 	console.log("[actionMaxBet button]");
+	betAudio.play();
 };
 function incrBet(){
 	console.log("[bet increase button]");
+	betAudio.play();
 };
 
 function decrBet(){
 	console.log("[bet decrease button]");
+	betAudio.play();
 };
