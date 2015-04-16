@@ -1,13 +1,18 @@
 //javascript
+// TODO: create separate game state structure [boot,preload,game,win,gameover]
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create });
 var version = "V1.0 -[Summer is coming] - Demo Game - Ulrich.Saukel - 15/04/2015";
 var gameContainer;
 var style;
 var text;
-
 var soundtrack;
-var initialBet = 100;
-var initJackpot = 1000;
+// initial values -----------------------------------
+var betAmount = 0.05;
+var maxBet = 2;
+var jackpotAmount = 500;
+var bankAmount = 100;
+var wonAmount =0;
+
 
 var board;
 var background;
@@ -25,10 +30,10 @@ var betTxt;
 var jackpotTxt;
 
 
-var play;
-var betPlus;
-var betMinus;
-var maxBet;
+var playBtn;
+var betPlusBtn;
+var betMinusBtn;
+var maxBetBtn;
 
 var betAudio;
 var clink;
@@ -94,24 +99,28 @@ function create() {
 	reelBackGround.frameName ='reel_background.png';
 	
 	// create buttons --------------------------------------------
-	play = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
-	maxBet = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down','maxBet_up');
-	betPlus = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down','betIncr_up');
-	betMinus = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
+	playBtn = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
+	maxBetBtn = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down','maxBet_up');
+	betPlusBtn = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down','betIncr_up');
+	betMinusBtn = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
 	// Create dynamic bitmap text --------------------------------------------------
 
-	jackpotTxt = game.add.bitmapText(70,70,'Kcap','5000.00',35);
-	betTxt = game.add.bitmapText(420,465,'Kcap','0.25',32);
-	wintxt = game.add.bitmapText(420,530,'Kcap','0.00',32);
-	banktxt = game.add.bitmapText(605,532,'Kcap','0.00',32);
-
+	jackpotTxt = game.add.bitmapText(70,70,'Kcap',accounting.formatMoney(jackpotAmount),35);
+	betTxt = game.add.bitmapText(420,465,'Kcap',accounting.formatMoney(betAmount),32);
+	wintxt = game.add.bitmapText(420,532,'Kcap',accounting.formatMoney(wonAmount),32);
+	banktxt = game.add.bitmapText(580,533,'Kcap',accounting.formatMoney(bankAmount),32);
 
 
 	style = { font: "14px Arial", fill: "#cccccc", align: "right" };
     text = game.add.text(game.world.centerY, 580, version, style);
 
     console.log("[created]");
+
+   // start pseudo "progressive jackpot"
+    setTimeout(jackpotIncrement,1500);
 }
+
+//actions ------------------------------------------------------------
 
 function actionPlay(){
 	console.log("[Play button]");
@@ -130,3 +139,11 @@ function decrBet(){
 	console.log("[bet decrease button]");
 	betAudio.play();
 };
+
+function jackpotIncrement(){
+	console.log("[jackpotIncrement] :: bitmap text update on timer")
+	jackpotAmount = jackpotAmount+0.01;
+	jackpotTxt.setText(accounting.formatMoney(jackpotAmount));
+	setTimeout(jackpotIncrement,1500);
+};
+//----------------------------------------------
