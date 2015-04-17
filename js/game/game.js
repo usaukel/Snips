@@ -13,6 +13,7 @@ var jackpotAmount = 500;
 var bankAmount = 100;
 var wonAmount =0;
 var gameRatio = 0.25;
+var loop = 3;
 // data --------------------------------------
 var jsonData;
 // assets ------------------------------------
@@ -25,6 +26,12 @@ var bet;
 var payTable;
 var jackpotField;
 var reelBackGround;
+var topReelShadow;
+// container ----------------------------------
+var reelContainer;
+var strip_0;
+var strip_1;
+var strip_2;
 // text fields --------------------------------
 var wintxt;
 var banktxt;
@@ -40,6 +47,10 @@ var betAudio;
 var clink;
 var reelSpinAudio;
 var payOffAudio;
+// array structures --------------------------------------------
+var tmpArr_0 = [];
+var tmpArr_1 = [];
+var tmpArr_2 = [];
 // math && probabilities ---------------------------------------
 var wagerChance;
 
@@ -49,6 +60,7 @@ function preload() {
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
 	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
 	game.load.bitmapFont('Kcap','/game/assets/fonts/Kcap.png','/game/assets/fonts/Kcap.fnt');
+	game.load.bitmapFont('Jackpot','/game/assets/fonts/Kcap_Y.png','/game/assets/fonts/Kcap_Y.fnt');
 
 	//TODO: json data file [sound atlas]
 	game.load.audio('summer',['/game/assets/sounds/Feel the Summer.mp3','/game/assets/sounds/Feel the Summer.ogg']);
@@ -70,13 +82,24 @@ function create() {
 	game.cache._text['data'] = JSON.parse(game.cache.getText('data'));
 
 	var sy = game.cache.getText('data').symbols.symbol;
+	var re = game.cache.getText('data').reels.strip;
 	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
-	//---------------------------------------------------------------
 
+	//Tmp Array---------------------------------------------
+	for(var a=0; a<re.length; a++){
+		console.log("[create] :: jsonData parsing :: reels >> ["+re[a].symbol+"]\n");
+		for(var i=0; i<re[a].symbol.length; i++){
+			if(a === 0) tmpArr_0.push(re[a].symbol[i]);
+			if(a === 1) tmpArr_1.push(re[a].symbol[i]);
+			if(a === 2) tmpArr_2.push(re[a].symbol[i]);
+		}
+	};
+
+	console.log("[create] check intial array :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
 
 	// background music ----------------------------------
 	soundtrack = game.add.audio('summer');
-	soundtrack.volume = 0.2;
+	soundtrack.volume = 0;
 	soundtrack.loop = true;
 	soundtrack.play();
 	// interface audio creation -------------------------
@@ -84,7 +107,6 @@ function create() {
 	betAudio.volume = 0.3;
 	clink = game.add.audio('clink');
 	clink.volume = 0.5;
-
 
 	// asset definition -------------------------------
 
@@ -111,10 +133,20 @@ function create() {
 
 	payTable = game.add.sprite(15,146,'atlas');
 	payTable.frameName ='payTable_description.png';
+	// group creation ---------------------------------
+	reelContainer = game.add.group();
+	strip_0 = game.add.group();
+	strip_1 = game.add.group();
+	strip_2 = game.add.group();
 
 	reelBackGround = game.add.sprite(315,115,'atlas');
 	reelBackGround.frameName ='reel_background.png';
+	reelContainer.add(reelBackGround);
+	reelContainer.add(strip_0);
+	topReelShadow = game.add.sprite(reelBackGround.x+11,reelBackGround.y+11,'atlas');
+	topReelShadow.frameName='reel_topShadows.png';
 	
+
 	// create buttons --------------------------------------------
 	playBtn = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
 	maxBetBtn = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down','maxBet_up');
@@ -122,7 +154,7 @@ function create() {
 	betMinusBtn = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
 	// Create dynamic bitmap text --------------------------------------------------
 
-	jackpotTxt = game.add.bitmapText(70,70,'Kcap',accounting.formatMoney(jackpotAmount),35);
+	jackpotTxt = game.add.bitmapText(70,64,'Jackpot',accounting.formatMoney(jackpotAmount),50);
 	betTxt = game.add.bitmapText(420,465,'Kcap',accounting.formatMoney(betAmount),32);
 	wintxt = game.add.bitmapText(420,532,'Kcap',accounting.formatMoney(wonAmount),32);
 	wintxt.alpha = 0;
@@ -136,6 +168,13 @@ function create() {
 
    // start pseudo "progressive jackpot"
     setTimeout(jackpotIncrement,1500);
+};
+
+// reel strip --------------------------------------------------------
+function createStrip(){
+	for(var i=0; i<6; i++){
+		console.log("[createStrip] ::: "+ sy[0].id)
+	}
 }
 
 //actions ------------------------------------------------------------
