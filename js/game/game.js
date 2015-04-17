@@ -99,7 +99,7 @@ function create() {
 
 	// background music ----------------------------------
 	soundtrack = game.add.audio('summer');
-	soundtrack.volume = 0;
+	soundtrack.volume = 0.1; // TODO: Volume control up/down to mute
 	soundtrack.loop = true;
 	soundtrack.play();
 	// interface audio creation -------------------------
@@ -167,7 +167,7 @@ function create() {
     console.log("[created]");
 
    // start pseudo "progressive jackpot"
-    setTimeout(jackpotIncrement,1500);
+    setTimeout(jackpotIncrement,1250);
 };
 
 // reel strip --------------------------------------------------------
