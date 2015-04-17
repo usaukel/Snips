@@ -56,6 +56,9 @@ var wagerChance;
 
 
 function preload() {
+	// game data
+	game.load.text('data','/game/data/data.json');
+
 	//bitmap atlas definition
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
 	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
@@ -63,45 +66,24 @@ function preload() {
 	game.load.bitmapFont('Jackpot','/game/assets/fonts/Kcap_Y.png','/game/assets/fonts/Kcap_Y.fnt');
 
 	//TODO: json data file [sound atlas]
-	game.load.audio('summer',['/game/assets/sounds/Feel the Summer.mp3','/game/assets/sounds/Feel the Summer.ogg']);
 	game.load.audio('betSnd',['/game/assets/sounds/bet.mp3','/game/assets/sounds/bet.ogg']);
 	game.load.audio('payOff',['/game/assets/sounds/payoff.mp3','/game/assets/sounds/payoff.ogg']);
 	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
 	game.load.audio('spin',['/game/assets/sounds/spin_01.mp3','/game/assets/sounds/spin_01.ogg']);
 
-	// game data
-	game.load.text('data','/game/data/data.json');
- 
 
 }
 
 function create() {
 
-	// Check for Data load --- firsty test of json data load in Phaser
-	jsonData = JSON.parse(game.cache.getText('data'));
-	game.cache._text['data'] = JSON.parse(game.cache.getText('data'));
-
-	var sy = game.cache.getText('data').symbols.symbol;
-	var re = game.cache.getText('data').reels.strip;
-	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
-
-	//Tmp Array---------------------------------------------
-	for(var a=0; a<re.length; a++){
-		console.log("[create] :: jsonData parsing :: reels >> ["+re[a].symbol+"]\n");
-		for(var i=0; i<re[a].symbol.length; i++){
-			if(a === 0) tmpArr_0.push(re[a].symbol[i]);
-			if(a === 1) tmpArr_1.push(re[a].symbol[i]);
-			if(a === 2) tmpArr_2.push(re[a].symbol[i]);
-		}
-	};
-
-	console.log("[create] check intial array :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
+	
 
 	// background music ----------------------------------
-	soundtrack = game.add.audio('summer');
-	soundtrack.volume = 0.1; // TODO: Volume control up/down to mute
-	soundtrack.loop = true;
-	soundtrack.play();
+	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
+	soundtrack.setVolume(10);
+	soundtrack.loop().play();
+	
+
 	// interface audio creation -------------------------
 	betAudio = game.add.audio('betSnd');
 	betAudio.volume = 0.3;
@@ -166,11 +148,33 @@ function create() {
 
     console.log("[created]");
 
+// Check for Data load --- firsty test of json data load in Phaser
+	jsonData = JSON.parse(game.cache.getText('data'));
+	game.cache._text['data'] = JSON.parse(game.cache.getText('data'));
+
+	var sy = game.cache.getText('data').symbols.symbol;
+	var re = game.cache.getText('data').reels.strip;
+	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
+
+	//Tmp Array---------------------------------------------
+	for(var a=0; a<re.length; a++){
+		console.log("[create] :: jsonData parsing :: reels >> ["+re[a].symbol+"]\n");
+		for(var i=0; i<re[a].symbol.length; i++){
+			if(a === 0) tmpArr_0.push(re[a].symbol[i]);
+			if(a === 1) tmpArr_1.push(re[a].symbol[i]);
+			if(a === 2) tmpArr_2.push(re[a].symbol[i]);
+		}
+	};
+
+	console.log("[create] check intial array :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
+
    // start pseudo "progressive jackpot"
-    setTimeout(jackpotIncrement,1250);
+    setTimeout(jackpotIncrement,1500);
+
 };
 
 // reel strip --------------------------------------------------------
+
 function createStrip(){
 	for(var i=0; i<6; i++){
 		console.log("[createStrip] ::: "+ sy[0].id)
@@ -230,4 +234,5 @@ function betlogic(id){
 function setChance(){
 	wagerChance = Math.round((betAmount/maxBet)*100)*gameRatio;
 	console.log("[setChance] :: trigger random win ::"+chance.bool({likelihood:wagerChance}));
-}
+};
+
