@@ -238,7 +238,7 @@ function betlogic(id){
 	updateBetField();
 };
 
-//game math ----------------------------------
+//game simple maths ----------------------------------
 function setChance(){
 
 	setStripHead();
@@ -261,14 +261,13 @@ function setRamdomSymbols(){
 
 function setWinSymbol(){
 	console.log("[setWinSymbol] ::: Creating win symbol");
-	setStripBody(6);
+	setStripBody(7);
+	setWinningStrip();
 };
 
 function setStripHead(){
 	// filling up strip 0 to 2 with first 3 symbol from previous game | initial load
-	stripArr_0 =[];
-	stripArr_1 =[];
-	stripArr_2 =[];
+		resetStripsArray();
 		for(var x=0; x<3; x++){
 			for(var i=0; i<eval("tmpArr_"+x).length; i++){
 				eval("stripArr_"+i).push(eval("tmpArr_"+x)[i]);
@@ -288,13 +287,29 @@ function setStripBody(len){
 
 console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 
-resetTmpArray();
+	if(len != 7)setCacheTmpArray();
 };
 
-function resetTmpArray(){
-	tmpArr_0 = [];
-	tmpArr_1 = [];
-	tmpArr_2 = [];
+function setWinningStrip(){
+	var m = Math.floor(Math.random() * ((winSymbols.length-1) - 0 + 1)) + 0;
+	console.log("[setWinningStrip] :::: "+winSymbols.length, winSymbols[m]);
+	var re = game.cache.getText('data').win;
+
+	console.log("[setWinningStrip] ::::: len "+re[winSymbols[m]].strip.length);
+	console.log("[setWinningStrip] ::::: len "+re[winSymbols[m]].strip[0].symbol.length);
+	console.log("[setWinningStrip] ::::: symbol "+re[winSymbols[m]].strip[0].symbol[0]);
+
+	for(var x=0; x<re[winSymbols[m]].strip.length; x++){
+		for(var i=0; i<re[winSymbols[m]].strip[x].symbol.length; i++){
+			eval("stripArr_"+x).push(re[winSymbols[m]].strip[x].symbol[i]);
+		};		
+	};
+	setCacheTmpArray();
+	console.log("[setWinningStrip] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+};
+
+function setCacheTmpArray(){
+	resetTmpArray();
 	for(var x=0; x<3; x++){
 		for(var p=9; p<12; p++){			
 			eval("tmpArr_"+x).push(eval("stripArr_"+x)[p]);
@@ -302,5 +317,17 @@ function resetTmpArray(){
 	};
 
 	console.log("[resetTmpArray] new strip head :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
+}
+
+function resetTmpArray(){
+	tmpArr_0 = [];
+	tmpArr_1 = [];
+	tmpArr_2 = [];	
+};
+
+function resetStripsArray(){
+	stripArr_0 =[];
+	stripArr_1 =[];
+	stripArr_2 =[];	
 }
 
