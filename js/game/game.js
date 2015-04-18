@@ -42,6 +42,8 @@ var playBtn;
 var betPlusBtn;
 var betMinusBtn;
 var maxBetBtn;
+//symbols -------------------------------------
+var Diamond,Seven,Bar,Summertime,Casino,Cherry,Strawberry,Plum,Orange,Melon,Bell,Lemon;
 // audio --------------------------------------
 var betAudio;
 var clink;
@@ -57,7 +59,18 @@ var stripArr_2  = [];
 // math && probabilities ---------------------------------------
 var wagerChance;
 var winSymbols =["Diamond","Seven","Bar","Summertime","Casino","Cherry","Strawberry"];
-var symbolSet =["Diamond","Seven","Bar","Summertime","Casino","Cherry","Strawberry","Plum","Orange","Melon","Bell","Lemon"];
+var symbolSet =[	["Diamond","diamond.png"],
+					["Seven","seven.png"],
+					["Bar","bar.png"],
+					["Summertime","summerTime.png"],
+					["Casino","casino.png"],
+					["Cherry","cherry.png"],
+					["Strawberry","strawberry.png"],
+					["Plum","plum.png"],
+					["Orange","orange.png"],
+					["Melon","melon.png"],
+					["Bell","bell.png"],
+					["Lemon","lemon.png"]];
 
 
 
@@ -77,6 +90,13 @@ function preload() {
 	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
 	game.load.audio('spin',['/game/assets/sounds/spin.mp3','/game/assets/sounds/spin.ogg']);
 
+	//preload symbol set
+	for(var sym=0; sym<symbolSet.length;sym++){
+		var imageName = symbolSet[sym][0];
+		var imagePath = '/game/assets/images/symbols/'+symbolSet[sym][1];
+		console.log(imagePath);
+		game.load.image(imageName,imagePath);
+	}
 
 }
 
@@ -120,17 +140,29 @@ function create() {
 
 	payTable = game.add.sprite(15,146,'atlas');
 	payTable.frameName ='payTable_description.png';
-	//Symbols -----------------------------------------
+		
 	// group creation ---------------------------------
 	reelContainer = game.add.group();
 	strip_0 = game.add.group();
 	strip_1 = game.add.group();
 	strip_2 = game.add.group();
 
+	var posX = 329;
+	var posY = -115;
+	for(var tgt=0; tgt<3; tgt++){
+		eval("strip_"+tgt).x = posX;
+		eval("strip_"+tgt).y = posY;
+		posX = posX+76;
+	};
+
 	reelBackGround = game.add.sprite(315,115,'atlas');
 	reelBackGround.frameName ='reel_background.png';
 	reelContainer.add(reelBackGround);
+
 	reelContainer.add(strip_0);
+	reelContainer.add(strip_1);
+	reelContainer.add(strip_2);
+
 	topReelShadow = game.add.sprite(reelBackGround.x+11,reelBackGround.y+11,'atlas');
 	topReelShadow.frameName='reel_topShadows.png';
 	
@@ -180,14 +212,6 @@ function create() {
     setTimeout(jackpotIncrement,1500);
 
 };
-
-// reel strip --------------------------------------------------------
-
-function createStrip(){
-	for(var i=0; i<6; i++){
-		console.log("[createStrip] ::: "+ sy[0].id)
-	}
-}
 
 //actions ------------------------------------------------------------
 
@@ -280,7 +304,7 @@ function setStripHead(){
 function setStripBody(len){
 	for(var x=0; x<3; x++){
 		for(var i=0; i<len; i++){
-			var m = Math.floor(Math.random() * (12 - 0 + 1)) + 0;
+			var m = Math.floor(Math.random() * (11 - 0 + 1)) + 0;
 			eval("stripArr_"+x).push(m);
 		};		
 	};
@@ -305,6 +329,7 @@ function setWinningStrip(){
 		};		
 	};
 	setCacheTmpArray();
+
 	console.log("[setWinningStrip] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 };
 
@@ -331,3 +356,23 @@ function resetStripsArray(){
 	stripArr_2 =[];	
 }
 
+// reel strip --------------------------------------------------------
+
+function createStrip(){
+	var posY;
+	var posX;
+	for(var i=0; i<3; i++){
+		console.log("[createStrip] **************** strip_"+i);
+		var group = eval("strip_"+i);
+		posY = 0;
+		for(var sym=0;sym<eval("stripArr_"+i).length-1; sym++){		
+			var index = eval("stripArr_"+i)[sym];
+			group.create(0,posY,symbolSet[index][0]);
+			posY = posY+80;
+
+
+		//console.log("[createStrip] symbol asset::: "+index);
+		console.log("[createStrip] generated strip Array ::: "+symbolSet[index][1]);
+		};
+	};
+};
