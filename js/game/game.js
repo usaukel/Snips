@@ -27,6 +27,7 @@ var payTable;
 var jackpotField;
 var reelBackGround;
 var topReelShadow;
+var mask;
 // container ----------------------------------
 var reelContainer;
 var strip_0;
@@ -90,6 +91,7 @@ function preload() {
 	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
 	game.load.audio('spin',['/game/assets/sounds/spin.mp3','/game/assets/sounds/spin.ogg']);
 
+
 	//preload symbol set
 	for(var sym=0; sym<symbolSet.length;sym++){
 		var imageName = symbolSet[sym][0];
@@ -140,7 +142,7 @@ function create() {
 
 	payTable = game.add.sprite(15,146,'atlas');
 	payTable.frameName ='payTable_description.png';
-		
+
 	// group creation ---------------------------------
 	reelContainer = game.add.group();
 	strip_0 = game.add.group();
@@ -148,20 +150,27 @@ function create() {
 	strip_2 = game.add.group();
 
 	var posX = 329;
-	var posY = -115;
+	var posY = -510;
 	for(var tgt=0; tgt<3; tgt++){
 		eval("strip_"+tgt).x = posX;
 		eval("strip_"+tgt).y = posY;
 		posX = posX+76;
 	};
 
+	mask = game.add.graphics(315, 115);
+	mask.beginFill(0xffffff);
+	mask.drawRect(10,10,230,243);
+	
 	reelBackGround = game.add.sprite(315,115,'atlas');
 	reelBackGround.frameName ='reel_background.png';
+
+	
 	reelContainer.add(reelBackGround);
 
 	reelContainer.add(strip_0);
 	reelContainer.add(strip_1);
 	reelContainer.add(strip_2);
+	
 
 	topReelShadow = game.add.sprite(reelBackGround.x+11,reelBackGround.y+11,'atlas');
 	topReelShadow.frameName='reel_topShadows.png';
@@ -308,6 +317,11 @@ function setStripBody(len){
 			eval("stripArr_"+x).push(m);
 		};		
 	};
+console.log("before reverse[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+	
+	reverseArray(stripArr_0);
+	reverseArray(stripArr_1);
+	reverseArray(stripArr_2);
 
 console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 
@@ -328,6 +342,12 @@ function setWinningStrip(){
 			eval("stripArr_"+x).push(re[winSymbols[m]].strip[x].symbol[i]);
 		};		
 	};
+	console.log("[setWinningStrip] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+
+	reverseArray(stripArr_0);
+	reverseArray(stripArr_1);
+	reverseArray(stripArr_2);
+
 	setCacheTmpArray();
 
 	console.log("[setWinningStrip] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
@@ -343,6 +363,10 @@ function setCacheTmpArray(){
 
 	console.log("[resetTmpArray] new strip head :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
 }
+
+function reverseArray(tgtArray){
+	eval(tgtArray).reverse();
+};
 
 function resetTmpArray(){
 	tmpArr_0 = [];
@@ -364,9 +388,10 @@ function createStrip(){
 	for(var i=0; i<3; i++){
 		console.log("[createStrip] **************** strip_"+i);
 		var group = eval("strip_"+i);
+			group.mask = mask;
 		posY = 0;
-		for(var sym=0;sym<eval("stripArr_"+i).length-1; sym++){		
-			var index = eval("stripArr_"+i)[sym];
+		for(var sym=0;sym<eval("stripArr_"+i).length-1; sym++){	
+		var index = eval("stripArr_"+i)[sym];				
 			group.create(0,posY,symbolSet[index][0]);
 			posY = posY+80;
 
