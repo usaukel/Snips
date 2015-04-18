@@ -72,7 +72,13 @@ var symbolSet =[	["Diamond","diamond.png"],
 					["Melon","melon.png"],
 					["Bell","bell.png"],
 					["Lemon","lemon.png"]];
-
+// tween -------------------------------------------------------------
+var tween_0;
+var tween_1;
+var tween_2;
+// game flag
+var flag;
+var value;
 
 
 function preload() {
@@ -110,7 +116,9 @@ function create() {
 	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
 	soundtrack.setVolume(0);
 	soundtrack.loop().play();
-	
+	//spin audio
+	reelSpinAudio = game.add.audio('spin');
+	reelSpinAudio.volume = 0.5;
 
 	// interface audio creation -------------------------
 	betAudio = game.add.audio('betSnd');
@@ -150,7 +158,7 @@ function create() {
 	strip_2 = game.add.group();
 
 	var posX = 329;
-	var posY = -510;
+	var posY = -2425;
 	for(var tgt=0; tgt<3; tgt++){
 		eval("strip_"+tgt).x = posX;
 		eval("strip_"+tgt).y = posY;
@@ -160,7 +168,7 @@ function create() {
 	mask = game.add.graphics(315, 115);
 	mask.beginFill(0xffffff);
 	mask.drawRect(10,10,230,243);
-	
+
 	reelBackGround = game.add.sprite(315,115,'atlas');
 	reelBackGround.frameName ='reel_background.png';
 
@@ -213,10 +221,12 @@ function create() {
 		}
 	};
 
-
-
 	console.log("[create] check intial array :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
 
+	// intial reel in
+	setStripHead();
+	setChance();
+	createStrip();
    // start pseudo "progressive jackpot"
     setTimeout(jackpotIncrement,1500);
 
@@ -226,8 +236,12 @@ function create() {
 
 function actionPlay(){
 	console.log("[Play button]");
-	setChance();
+	//setChance();
+	newgame();
+	reeltween();
 	clink.play();
+	buttonsEnabled(false);
+	updateBank();
 };
 function actionMaxBet(){
 	console.log("[actionMaxBet button]");
@@ -274,27 +288,30 @@ function betlogic(id){
 //game simple maths ----------------------------------
 function setChance(){
 
-	setStripHead();
+
 
 	wagerChance = Math.round((betAmount/maxBet)*100)*gameRatio;
 	var result = chance.bool({likelihood:wagerChance});
 	console.log("[setChance] :: trigger random win ::"+result);
 
+	flag = result;
 	if(result){
 		setWinSymbol();
 	}else{
 		setRamdomSymbols();
 	};
+
+	//setStripHead();
 };
 
 function setRamdomSymbols(){
 	console.log("[setRamdomSymbols] ::: Creating random symbols");
-	setStripBody(9);
+	setStripBody(33);
 };
 
 function setWinSymbol(){
 	console.log("[setWinSymbol] ::: Creating win symbol");
-	setStripBody(7);
+	setStripBody(31);
 	setWinningStrip();
 };
 
@@ -303,7 +320,7 @@ function setStripHead(){
 		resetStripsArray();
 		for(var x=0; x<3; x++){
 			for(var i=0; i<eval("tmpArr_"+x).length; i++){
-				eval("stripArr_"+i).push(eval("tmpArr_"+x)[i]);
+				eval("stripArr_"+i).unshift(eval("tmpArr_"+x)[i]);
 			};		
 		};
 
@@ -317,7 +334,7 @@ function setStripBody(len){
 			eval("stripArr_"+x).push(m);
 		};		
 	};
-console.log("before reverse[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+//console.log("before reverse[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 	
 	reverseArray(stripArr_0);
 	reverseArray(stripArr_1);
@@ -325,7 +342,7 @@ console.log("before reverse[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip
 
 console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 
-	if(len != 7)setCacheTmpArray();
+	if(len>31)setCacheTmpArray();
 };
 
 function setWinningStrip(){
@@ -356,7 +373,7 @@ function setWinningStrip(){
 function setCacheTmpArray(){
 	resetTmpArray();
 	for(var x=0; x<3; x++){
-		for(var p=9; p<12; p++){			
+		for(var p=0; p<3; p++){			
 			eval("tmpArr_"+x).push(eval("stripArr_"+x)[p]);
 		}
 	};
@@ -386,9 +403,10 @@ function createStrip(){
 	var posY;
 	var posX;
 	for(var i=0; i<3; i++){
-		console.log("[createStrip] **************** strip_"+i);
+		//console.log("[createStrip] **************** strip_"+i);
 		var group = eval("strip_"+i);
-			group.mask = mask;
+		//mask.alpha = 0;
+		group.mask = mask;
 		posY = 0;
 		for(var sym=0;sym<eval("stripArr_"+i).length-1; sym++){	
 		var index = eval("stripArr_"+i)[sym];				
@@ -397,7 +415,78 @@ function createStrip(){
 
 
 		//console.log("[createStrip] symbol asset::: "+index);
-		console.log("[createStrip] generated strip Array ::: "+symbolSet[index][1]);
+		//console.log("[createStrip] generated strip Array ::: "+symbolSet[index][1]);
 		};
 	};
+
+	//console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+strip_0.height);
 };
+
+function clearContainer(){
+	for(var i=0; i<3; i++){
+		var group = eval("strip_"+i);
+			group.removeAll();
+	}
+}
+
+
+// reel strips tween--------------------------------------------
+function reeltween(){
+
+	for(var tw=0;tw<3;tw++){
+		var tmpTw = eval("tween_"+tw);
+		tmpTw = game.add.tween(eval("strip_"+tw)).to( { y: 130  }, 6500, Phaser.Easing.Bounce.Out, true,tw*500);
+		tmpTw.onStart.add(onStart,this);
+		tmpTw.onComplete.add(onComplete, this,tmpTw);
+	};
+}
+
+
+function onStart(){
+	console.log("[onStart] :: ");
+	value = 0;
+	if(!reelSpinAudio.isPlaying)reelSpinAudio.play();
+};
+
+function onComplete(obj){
+	
+	value++;
+/*	for (var key in obj) {
+    	if (obj.hasOwnProperty(key)) {
+        	console.log("[list properties of twen object] :: "+key);
+	    }
+	}
+*/
+	clink.play();
+	console.log("[onComplete] ::: "+value +" || "+flag);
+	if(value === 3 && flag === false){
+		//setTimeout(newgame,1500);
+		buttonsEnabled(true);
+	};
+}
+
+function resetReel(){
+	for(var tw=0;tw<3;tw++){
+		eval("strip_"+tw).y = -2425;
+	}
+}
+
+function newgame(){
+	setStripHead();
+	setChance();	
+	clearContainer();
+	resetReel();
+	createStrip();
+};
+
+function buttonsEnabled(flag){
+	playBtn.input.enabled = flag;
+	maxBetBtn.input.enabled = flag;
+	betMinusBtn.input.enabled = flag;
+	betPlusBtn.input.enabled = flag;
+};
+
+function updateBank(){
+	bankAmount = bankAmount - betAmount;
+	banktxt.setText(accounting.formatMoney(bankAmount));
+}
