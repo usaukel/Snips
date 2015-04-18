@@ -114,7 +114,7 @@ function create() {
 
 	// background music ----------------------------------
 	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
-	soundtrack.setVolume(0);
+	soundtrack.setVolume(10);
 	soundtrack.loop().play();
 	//spin audio
 	reelSpinAudio = game.add.audio('spin');
