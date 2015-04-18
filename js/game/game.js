@@ -51,8 +51,14 @@ var payOffAudio;
 var tmpArr_0 = [];
 var tmpArr_1 = [];
 var tmpArr_2 = [];
+var stripArr_0 = [];
+var stripArr_1 = [];
+var stripArr_2  = [];
 // math && probabilities ---------------------------------------
 var wagerChance;
+var winSymbols =["Diamond","Seven","Bar","Summertime","Casino","Cherry","Strawberry"];
+var symbolSet =["Diamond","Seven","Bar","Summertime","Casino","Cherry","Strawberry","Plum","Orange","Melon","Bell","Lemon"];
+
 
 
 function preload() {
@@ -80,7 +86,7 @@ function create() {
 
 	// background music ----------------------------------
 	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
-	soundtrack.setVolume(10);
+	soundtrack.setVolume(0);
 	soundtrack.loop().play();
 	
 
@@ -91,7 +97,6 @@ function create() {
 	clink.volume = 0.5;
 
 	// asset definition -------------------------------
-
 	background = game.add.sprite(0,0,'atlas');
 	background.frameName ='background.png';
 
@@ -115,6 +120,7 @@ function create() {
 
 	payTable = game.add.sprite(15,146,'atlas');
 	payTable.frameName ='payTable_description.png';
+	//Symbols -----------------------------------------
 	// group creation ---------------------------------
 	reelContainer = game.add.group();
 	strip_0 = game.add.group();
@@ -165,6 +171,8 @@ function create() {
 			if(a === 2) tmpArr_2.push(re[a].symbol[i]);
 		}
 	};
+
+
 
 	console.log("[create] check intial array :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
 
@@ -225,14 +233,74 @@ function betlogic(id){
 			betAmount = 0.05;
 		}else{
 			betAmount-= 0.05;
-		}
-		
+		}	
 	};
 	updateBetField();
 };
+
 //game math ----------------------------------
 function setChance(){
+
+	setStripHead();
+
 	wagerChance = Math.round((betAmount/maxBet)*100)*gameRatio;
-	console.log("[setChance] :: trigger random win ::"+chance.bool({likelihood:wagerChance}));
+	var result = chance.bool({likelihood:wagerChance});
+	console.log("[setChance] :: trigger random win ::"+result);
+
+	if(result){
+		setWinSymbol();
+	}else{
+		setRamdomSymbols();
+	};
 };
+
+function setRamdomSymbols(){
+	console.log("[setRamdomSymbols] ::: Creating random symbols");
+	setStripBody(9);
+};
+
+function setWinSymbol(){
+	console.log("[setWinSymbol] ::: Creating win symbol");
+	setStripBody(6);
+};
+
+function setStripHead(){
+	// filling up strip 0 to 2 with first 3 symbol from previous game | initial load
+	stripArr_0 =[];
+	stripArr_1 =[];
+	stripArr_2 =[];
+		for(var x=0; x<3; x++){
+			for(var i=0; i<eval("tmpArr_"+x).length; i++){
+				eval("stripArr_"+i).push(eval("tmpArr_"+x)[i]);
+			};		
+		};
+
+	console.log("[setStripHead] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+};
+
+function setStripBody(len){
+	for(var x=0; x<3; x++){
+		for(var i=0; i<len; i++){
+			var m = Math.floor(Math.random() * (12 - 0 + 1)) + 0;
+			eval("stripArr_"+x).push(m);
+		};		
+	};
+
+console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+
+resetTmpArray();
+};
+
+function resetTmpArray(){
+	tmpArr_0 = [];
+	tmpArr_1 = [];
+	tmpArr_2 = [];
+	for(var x=0; x<3; x++){
+		for(var p=9; p<12; p++){			
+			eval("tmpArr_"+x).push(eval("stripArr_"+x)[p]);
+		}
+	};
+
+	console.log("[resetTmpArray] new strip head :::: "+tmpArr_0+" | "+tmpArr_1+" | "+tmpArr_2);
+}
 
