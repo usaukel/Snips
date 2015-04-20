@@ -106,6 +106,7 @@
     },
     "win": {
       "Diamond": {
+        "multiplier": "jackpot",
         "strip": [
           {
             "id": "0",
@@ -131,6 +132,7 @@
         ]
       },
       "Seven": {
+        "multiplier": "50",
         "strip": [
           {
             "id": "0",
@@ -156,6 +158,7 @@
         ]
       },
       "Bar": {
+        "multiplier": "25",
         "strip": [
           {
             "id": "0",
@@ -181,6 +184,7 @@
         ]
       },
       "Summertime": {
+        "multiplier": "15",
         "strip": [
           {
             "id": "0",
@@ -206,6 +210,7 @@
         ]
       },
       "Casino": {
+        "multiplier": "10",
         "strip": [
           {
             "id": "0",
@@ -231,6 +236,7 @@
         ]
       },
       "Cherry": {
+        "multiplier": "5",
         "strip": [
           {
             "id": "0",
@@ -256,6 +262,7 @@
         ]
       },
       "Strawberry": {
+        "multiplier": "2",
         "strip": [
           {
             "id": "0",

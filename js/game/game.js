@@ -1,19 +1,24 @@
 //javascript
-// TODO: create separate game state structure [boot,preload,game,win,gameover]
+// TODO: create separate game state structure [boot,preload,game,win,continue,gameover]
+// TODO: Win pattern check - change approach or add logic to check array pattern at key[34] for all strip
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create });
 var version = "V1.0 -[Summer is coming] - Demo Game - Ulrich.Saukel - 15/04/2015";
 var gameContainer;
 var style;
 var text;
 var soundtrack;
+//timed events --------------------------------------
+var progressiveTimer;
 // initial values -----------------------------------
 var betAmount = 0.05;
 var maxBet = 2;
-var jackpotAmount = 500;
+var jackpotAmount = 1500;
 var bankAmount = 100;
 var wonAmount =0;
 var gameRatio = 0.25;
 var loop = 3;
+var currentBet = 0;
+var multiplierValue = 0;
 // data --------------------------------------
 var jsonData;
 // assets ------------------------------------
@@ -28,6 +33,9 @@ var jackpotField;
 var reelBackGround;
 var topReelShadow;
 var mask;
+var winframe_0;
+var winframe_1;
+var winframe_2;
 // container ----------------------------------
 var reelContainer;
 var strip_0;
@@ -50,6 +58,7 @@ var betAudio;
 var clink;
 var reelSpinAudio;
 var payOffAudio;
+var symbolWinAudio;
 // array structures --------------------------------------------
 var tmpArr_0 = [];
 var tmpArr_1 = [];
@@ -76,9 +85,11 @@ var symbolSet =[	["Diamond","diamond.png"],
 var tween_0;
 var tween_1;
 var tween_2;
+var textTween;
 // game flag
 var flag;
 var value;
+var reveseStatus = false;
 
 
 function preload() {
@@ -87,6 +98,8 @@ function preload() {
 
 	//bitmap atlas definition
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
+	game.load.spritesheet('win','/game/assets/images/winSparks.png',150,150,44);
+	game.load.atlasJSONHash('sparksAtlas','/game/assets/images/sparks.png','/game/assets/images/sparks.json');
 	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
 	game.load.bitmapFont('Kcap','/game/assets/fonts/Kcap.png','/game/assets/fonts/Kcap.fnt');
 	game.load.bitmapFont('Jackpot','/game/assets/fonts/Kcap_Y.png','/game/assets/fonts/Kcap_Y.fnt');
@@ -96,13 +109,13 @@ function preload() {
 	game.load.audio('payOff',['/game/assets/sounds/payoff.mp3','/game/assets/sounds/payoff.ogg']);
 	game.load.audio('clink',['/game/assets/sounds/reel_stop.mp3','/game/assets/sounds/reel_stop.ogg']);
 	game.load.audio('spin',['/game/assets/sounds/spin.mp3','/game/assets/sounds/spin.ogg']);
+	game.load.audio('symbolWin',['/game/assets/sounds/SymbolWin.mp3','/game/assets/sounds/SymbolWin.ogg']);
 
 
 	//preload symbol set
 	for(var sym=0; sym<symbolSet.length;sym++){
 		var imageName = symbolSet[sym][0];
 		var imagePath = '/game/assets/images/symbols/'+symbolSet[sym][1];
-		console.log(imagePath);
 		game.load.image(imageName,imagePath);
 	}
 
@@ -114,12 +127,14 @@ function create() {
 
 	// background music ----------------------------------
 	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
-	soundtrack.setVolume(10);
+	soundtrack.setVolume(0);
 	soundtrack.loop().play();
 	//spin audio
 	reelSpinAudio = game.add.audio('spin');
 	reelSpinAudio.volume = 0.5;
-
+	//symbolWin
+	symbolWinAudio = game.add.audio('symbolWin');
+	symbolWinAudio.volume = 0.8;
 	// interface audio creation -------------------------
 	betAudio = game.add.audio('betSnd');
 	betAudio.volume = 0.3;
@@ -157,6 +172,8 @@ function create() {
 	strip_1 = game.add.group();
 	strip_2 = game.add.group();
 
+
+
 	var posX = 329;
 	var posY = -2425;
 	for(var tgt=0; tgt<3; tgt++){
@@ -182,7 +199,37 @@ function create() {
 
 	topReelShadow = game.add.sprite(reelBackGround.x+11,reelBackGround.y+11,'atlas');
 	topReelShadow.frameName='reel_topShadows.png';
+
+	// win group --------------------------------------
+	winSparksContainer = game.add.group();
+
+	/*var _posX = 0;
+		for(var a=0;a<3;a++){
+			var tmpTgt = eval("winframe_"+a);
+				tmpTgt = game.add.sprite(_posX,0,'win');
+				tmpTgt.animations.add('win');
+				tmpTgt.animations.play('win', 20, true);
+				winSparksContainer.add(tmpTgt);
+			_posX = _posX+80;
+		};
 	
+	winframe_0 = game.add.sprite(0,0,'win');
+	winframe_1 = game.add.sprite(80,0,'win');
+	winframe_2 = game.add.sprite(160,0,'win');
+	winframe_0.animations.add('win');
+	winframe_1.animations.add('win');
+	winframe_2.animations.add('win');
+
+	winSparksContainer.add(winframe_0);
+	winSparksContainer.add(winframe_1);
+	winSparksContainer.add(winframe_2);
+
+	winframe_0.animations.play('win', 20, true);
+	winframe_1.animations.play('win', 20, true);
+	winframe_2.animations.play('win', 20, true);
+	*/
+	winSparksContainer.x = 287;
+	winSparksContainer.y = 176;
 
 	// create buttons --------------------------------------------
 	playBtn = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
@@ -191,17 +238,17 @@ function create() {
 	betMinusBtn = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
 	// Create dynamic bitmap text --------------------------------------------------
 
-	jackpotTxt = game.add.bitmapText(70,64,'Jackpot',accounting.formatMoney(jackpotAmount),50);
+	jackpotTxt = game.add.bitmapText(50,62,'Jackpot',accounting.formatMoney(jackpotAmount),50);
 	betTxt = game.add.bitmapText(420,465,'Kcap',accounting.formatMoney(betAmount),32);
-	wintxt = game.add.bitmapText(420,532,'Kcap',accounting.formatMoney(wonAmount),32);
+	wintxt = game.add.bitmapText(405,532,'Kcap',accounting.formatMoney(wonAmount),32);
 	wintxt.alpha = 0;
 	banktxt = game.add.bitmapText(580,533,'Kcap',accounting.formatMoney(bankAmount),32);
-
+	betTxt.align = 'center';
+	wintxt.align = 'center';
 
 	style = { font: "14px Arial", fill: "#cccccc", align: "right" };
     text = game.add.text(game.world.centerY, 580, version, style);
 
-    console.log("[created]");
 
 // Check for Data load --- firsty test of json data load in Phaser
 	jsonData = JSON.parse(game.cache.getText('data'));
@@ -209,7 +256,7 @@ function create() {
 
 	var sy = game.cache.getText('data').symbols.symbol;
 	var re = game.cache.getText('data').reels.strip;
-	console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
+	//console.log("[create] :: jsonData parsing :: symbols >> "+sy.length+" \n"+sy[0].id+" \n"+sy[0].text);
 
 	//Tmp Array---------------------------------------------
 	for(var a=0; a<re.length; a++){
@@ -227,8 +274,11 @@ function create() {
 	setStripHead();
 	setChance();
 	createStrip();
+
+
+
    // start pseudo "progressive jackpot"
-    setTimeout(jackpotIncrement,1500);
+    progressiveTimer = setTimeout(jackpotIncrement,1500);
 
 };
 
@@ -242,6 +292,10 @@ function actionPlay(){
 	clink.play();
 	buttonsEnabled(false);
 	updateBank();
+	// reset & hide winTxt
+	if(wintxt.alpha != 0) {
+		textTween = game.add.tween(wintxt).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+	}
 };
 function actionMaxBet(){
 	console.log("[actionMaxBet button]");
@@ -288,8 +342,6 @@ function betlogic(id){
 //game simple maths ----------------------------------
 function setChance(){
 
-
-
 	wagerChance = Math.round((betAmount/maxBet)*100)*gameRatio;
 	var result = chance.bool({likelihood:wagerChance});
 	console.log("[setChance] :: trigger random win ::"+result);
@@ -318,9 +370,10 @@ function setWinSymbol(){
 function setStripHead(){
 	// filling up strip 0 to 2 with first 3 symbol from previous game | initial load
 		resetStripsArray();
+		
 		for(var x=0; x<3; x++){
 			for(var i=0; i<eval("tmpArr_"+x).length; i++){
-				eval("stripArr_"+i).unshift(eval("tmpArr_"+x)[i]);
+				eval("stripArr_"+i).push(eval("tmpArr_"+x)[i]);
 			};		
 		};
 
@@ -328,6 +381,8 @@ function setStripHead(){
 };
 
 function setStripBody(len){
+
+console.log("[setStripBody before: head only] before ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 	for(var x=0; x<3; x++){
 		for(var i=0; i<len; i++){
 			var m = Math.floor(Math.random() * (11 - 0 + 1)) + 0;
@@ -335,10 +390,8 @@ function setStripBody(len){
 		};		
 	};
 //console.log("before reverse[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
-	
-	reverseArray(stripArr_0);
-	reverseArray(stripArr_1);
-	reverseArray(stripArr_2);
+
+reverseArrays();
 
 console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 
@@ -346,13 +399,20 @@ console.log("[setStripBody] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripA
 };
 
 function setWinningStrip(){
+	multiplierValue =0;
+
+	console.log("[setWinningStrip before: head only] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
+
 	var m = Math.floor(Math.random() * ((winSymbols.length-1) - 0 + 1)) + 0;
-	console.log("[setWinningStrip] :::: "+winSymbols.length, winSymbols[m]);
+	//console.log("[setWinningStrip] :::: "+winSymbols.length, winSymbols[m]);
 	var re = game.cache.getText('data').win;
 
 	console.log("[setWinningStrip] ::::: len "+re[winSymbols[m]].strip.length);
 	console.log("[setWinningStrip] ::::: len "+re[winSymbols[m]].strip[0].symbol.length);
 	console.log("[setWinningStrip] ::::: symbol "+re[winSymbols[m]].strip[0].symbol[0]);
+	console.log("[setWinningStrip] ::::: multiplier "+re[winSymbols[m]].multiplier);
+
+	multiplierValue = re[winSymbols[m]].multiplier;
 
 	for(var x=0; x<re[winSymbols[m]].strip.length; x++){
 		for(var i=0; i<re[winSymbols[m]].strip[x].symbol.length; i++){
@@ -361,9 +421,7 @@ function setWinningStrip(){
 	};
 	console.log("[setWinningStrip] ::::\nStrip 0 :: "+stripArr_0+"\nStrip 1 :: "+stripArr_1+"\nStrip 2 :: "+stripArr_2);
 
-	reverseArray(stripArr_0);
-	reverseArray(stripArr_1);
-	reverseArray(stripArr_2);
+	reverseArrays();
 
 	setCacheTmpArray();
 
@@ -432,7 +490,6 @@ function clearContainer(){
 
 // reel strips tween--------------------------------------------
 function reeltween(){
-
 	for(var tw=0;tw<3;tw++){
 		var tmpTw = eval("tween_"+tw);
 		tmpTw = game.add.tween(eval("strip_"+tw)).to( { y: 130  }, 6500, Phaser.Easing.Bounce.Out, true,tw*500);
@@ -451,18 +508,15 @@ function onStart(){
 function onComplete(obj){
 	
 	value++;
-/*	for (var key in obj) {
-    	if (obj.hasOwnProperty(key)) {
-        	console.log("[list properties of twen object] :: "+key);
-	    }
-	}
-*/
 	clink.play();
 	console.log("[onComplete] ::: "+value +" || "+flag);
 	if(value === 3 && flag === false){
 		//setTimeout(newgame,1500);
 		buttonsEnabled(true);
 	};
+	if(value === 3 && flag == true){
+		celebration();
+	}
 }
 
 function resetReel(){
@@ -471,9 +525,10 @@ function resetReel(){
 	}
 }
 
-function newgame(){
+function newgame(){	
+	winSparksContainer.removeAll();
 	setStripHead();
-	setChance();	
+	setChance();
 	clearContainer();
 	resetReel();
 	createStrip();
@@ -489,4 +544,51 @@ function buttonsEnabled(flag){
 function updateBank(){
 	bankAmount = bankAmount - betAmount;
 	banktxt.setText(accounting.formatMoney(bankAmount));
+
+	currentBet = betAmount;
 }
+
+function reverseArrays(){
+	for(var i=0;i<3;i++){
+		reverseArray(eval("stripArr_"+i));
+	}
+}
+
+// celebration animations --------------------------------------------------------
+
+function celebration(){
+	symbolWinAudio.play();
+	playFrames();
+	setTimeout(clearWinFrame,1500);
+	bankUpdate();
+};
+
+function bankUpdate(){
+	console.log("[bankUpdate] ::: "+currentBet)
+	if(multiplierValue != "jackpot"){
+		wonAmount = currentBet*multiplierValue;
+		bankAmount = bankAmount+wonAmount;
+	}else{
+		clearTimeout(progressiveTimer);
+		wonAmount = jackpotAmount;
+		bankAmount = bankAmount+wonAmount;
+	};
+	wintxt.setText(accounting.formatMoney(wonAmount));
+	wintxt.alpha = 1;
+};
+
+function playFrames(){
+	var _posX = -3;
+	for(var a=0;a<3;a++){
+		var tmpTgt = eval("winframe_"+a);
+			tmpTgt = game.add.sprite(_posX,0,'win');
+			tmpTgt.animations.add('win');
+			tmpTgt.animations.play('win', 20, true);
+			winSparksContainer.add(tmpTgt);
+		_posX = _posX+82;
+	};
+};
+
+function clearWinFrame(){	
+	buttonsEnabled(true);
+};
