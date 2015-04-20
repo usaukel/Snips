@@ -12,10 +12,10 @@ var progressiveTimer;
 // initial values -----------------------------------
 var betAmount = 0.05;
 var maxBet = 2;
-var jackpotAmount = 1500;
+var jackpotAmount = 200;
 var bankAmount = 100;
 var wonAmount =0;
-var gameRatio = 0.25;
+var gameRatio = 0.15;
 var loop = 3;
 var currentBet = 0;
 var multiplierValue = 0;
