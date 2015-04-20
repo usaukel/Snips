@@ -6,12 +6,12 @@
 		"sourceSize": {"w":800,"h":600}
 	},
 	"bank_field.png": {
-		"frame": {"x":747, "y":913, "w":171, "h":68},
+		"frame": {"x":0, "y":999, "w":171, "h":68},
 		"spriteSourceSize": {"x":0,"y":0,"w":178,"h":74},
 		"sourceSize": {"w":178,"h":74}
 	},
 	"bet_field.png": {
-		"frame": {"x":747, "y":844, "w":171, "h":68},
+		"frame": {"x":747, "y":910, "w":171, "h":68},
 		"spriteSourceSize": {"x":0,"y":0,"w":178,"h":74},
 		"sourceSize": {"w":178,"h":74}
 	},
@@ -55,8 +55,33 @@
 		"spriteSourceSize": {"x":0,"y":0,"w":226,"h":242},
 		"sourceSize": {"w":226,"h":242}
 	},
+	"volume_0.png": {
+		"frame": {"x":172, "y":999, "w":47, "h":28},
+		"spriteSourceSize": {"x":0,"y":0,"w":47,"h":28},
+		"sourceSize": {"w":47,"h":28}
+	},
+	"volume_25.png": {
+		"frame": {"x":48, "y":1068, "w":47, "h":28},
+		"spriteSourceSize": {"x":0,"y":0,"w":47,"h":28},
+		"sourceSize": {"w":47,"h":28}
+	},
+	"volume_50.png": {
+		"frame": {"x":96, "y":1068, "w":47, "h":28},
+		"spriteSourceSize": {"x":0,"y":0,"w":47,"h":28},
+		"sourceSize": {"w":47,"h":28}
+	},
+	"volume_75.png": {
+		"frame": {"x":220, "y":999, "w":47, "h":28},
+		"spriteSourceSize": {"x":0,"y":0,"w":47,"h":28},
+		"sourceSize": {"w":47,"h":28}
+	},
+	"volume_max.png": {
+		"frame": {"x":0, "y":1068, "w":47, "h":28},
+		"spriteSourceSize": {"x":0,"y":0,"w":47,"h":28},
+		"sourceSize": {"w":47,"h":28}
+	},
 	"win_field.png": {
-		"frame": {"x":0, "y":999, "w":171, "h":65},
+		"frame": {"x":747, "y":844, "w":171, "h":65},
 		"spriteSourceSize": {"x":0,"y":0,"w":178,"h":74},
 		"sourceSize": {"w":178,"h":74}
 	}
@@ -64,7 +89,7 @@
 },
 "meta": {
 	"image": "sprites.png",
-	"size": {"w": 1100, "h": 1094},
+	"size": {"w": 1100, "h": 1097},
 	"scale": "1"
 }
 }

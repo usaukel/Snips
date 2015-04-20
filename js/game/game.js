@@ -36,6 +36,9 @@ var mask;
 var winframe_0;
 var winframe_1;
 var winframe_2;
+var volumeBarContainer;
+var VolumeBarReference = ['volume_max','volume_75','volume_50','volume_25','volume_0'];
+var volumeLevel;
 // container ----------------------------------
 var reelContainer;
 var strip_0;
@@ -51,6 +54,7 @@ var playBtn;
 var betPlusBtn;
 var betMinusBtn;
 var maxBetBtn;
+var volumeBtn;
 //symbols -------------------------------------
 var Diamond,Seven,Bar,Summertime,Casino,Cherry,Strawberry,Plum,Orange,Melon,Bell,Lemon;
 // audio --------------------------------------
@@ -59,6 +63,7 @@ var clink;
 var reelSpinAudio;
 var payOffAudio;
 var symbolWinAudio;
+var volumeLevel;
 // array structures --------------------------------------------
 var tmpArr_0 = [];
 var tmpArr_1 = [];
@@ -99,7 +104,7 @@ function preload() {
 	//bitmap atlas definition
 	game.load.atlasJSONHash('atlas','/game/assets/images/sprites.png','/game/assets/images/sprites.json');
 	game.load.spritesheet('win','/game/assets/images/winSparks.png',150,150,44);
-	game.load.atlasJSONHash('sparksAtlas','/game/assets/images/sparks.png','/game/assets/images/sparks.json');
+	game.load.atlas('volumeLvlBar','/game/assets/images/volumeLvlBar.png','/game/assets/images/volumeLvlBar.json');
 	game.load.atlas('buttons','/game/assets/images/buttons.png','/game/assets/images/buttons.json');
 	game.load.bitmapFont('Kcap','/game/assets/fonts/Kcap.png','/game/assets/fonts/Kcap.fnt');
 	game.load.bitmapFont('Jackpot','/game/assets/fonts/Kcap_Y.png','/game/assets/fonts/Kcap_Y.fnt');
@@ -127,7 +132,7 @@ function create() {
 
 	// background music ----------------------------------
 	soundtrack = new buzz.sound( "/game/assets/sounds/Feel_the_Summer", {formats: ["ogg"]});
-	soundtrack.setVolume(0);
+	soundtrack.setVolume(100);
 	soundtrack.loop().play();
 	//spin audio
 	reelSpinAudio = game.add.audio('spin');
@@ -165,6 +170,14 @@ function create() {
 
 	payTable = game.add.sprite(15,146,'atlas');
 	payTable.frameName ='payTable_description.png';
+	//volume bar ---------------------------------------
+	/*var vol_xpos = 210;
+	var vol_ypos = 555;
+	volumeBarContainer = game.add.group();
+	volumeBarContainer.x = vol_xpos;
+	volumeBarContainer.y = vol_ypos;*/
+
+	volumeLevel = game.add.sprite(210,555,'volumeLvlBar',VolumeBarReference[0]);
 
 	// group creation ---------------------------------
 	reelContainer = game.add.group();
@@ -202,40 +215,16 @@ function create() {
 
 	// win group --------------------------------------
 	winSparksContainer = game.add.group();
-
-	/*var _posX = 0;
-		for(var a=0;a<3;a++){
-			var tmpTgt = eval("winframe_"+a);
-				tmpTgt = game.add.sprite(_posX,0,'win');
-				tmpTgt.animations.add('win');
-				tmpTgt.animations.play('win', 20, true);
-				winSparksContainer.add(tmpTgt);
-			_posX = _posX+80;
-		};
-	
-	winframe_0 = game.add.sprite(0,0,'win');
-	winframe_1 = game.add.sprite(80,0,'win');
-	winframe_2 = game.add.sprite(160,0,'win');
-	winframe_0.animations.add('win');
-	winframe_1.animations.add('win');
-	winframe_2.animations.add('win');
-
-	winSparksContainer.add(winframe_0);
-	winSparksContainer.add(winframe_1);
-	winSparksContainer.add(winframe_2);
-
-	winframe_0.animations.play('win', 20, true);
-	winframe_1.animations.play('win', 20, true);
-	winframe_2.animations.play('win', 20, true);
-	*/
 	winSparksContainer.x = 287;
 	winSparksContainer.y = 176;
+
 
 	// create buttons --------------------------------------------
 	playBtn = game.add.button(675,455,'buttons',actionPlay, this,'play_up','play_up','play_down','play_up');
 	maxBetBtn = game.add.button(555,455,'buttons',actionMaxBet, this,'maxBet_up','maxBet_up','maxBet_down','maxBet_up');
 	betPlusBtn = game.add.button(330,450,'buttons',incrBet,this,'betIncr_up','betIncr_up','betIncr_down','betIncr_up');
 	betMinusBtn = game.add.button(330,480,'buttons',decrBet,this,'betDecr_up','betDecr_up','betDecr_down','betDecr_up');
+	volumeBtn = game.add.button(160,545,'buttons',volumeToggle,this,'volume_up','volume_up','volume_down','volume_up');
 	// Create dynamic bitmap text --------------------------------------------------
 
 	jackpotTxt = game.add.bitmapText(50,62,'Jackpot',accounting.formatMoney(jackpotAmount),50);
@@ -313,6 +302,38 @@ function decrBet(){
 	console.log("[bet decrease button]");
 	betlogic(0);
 	betAudio.play();
+};
+
+function volumeToggle(){
+	
+	if(soundtrack.getVolume() === 0){
+		soundtrack.setVolume(100);
+	}else{
+		soundtrack.decreaseVolume(25);
+	};
+	setLevel();
+	betAudio.play();
+};
+
+function setLevel(){
+	console.log("[setLevel] ::: volume "+soundtrack.getVolume())
+	switch(soundtrack.getVolume()){
+		case 100:
+			volumeLevel.frameName = VolumeBarReference[0];
+		break;
+		case 75:
+			volumeLevel.frameName = VolumeBarReference[1];
+		break;
+		case 50:
+			volumeLevel.frameName = VolumeBarReference[2];
+		break;
+		case 25:
+			volumeLevel.frameName = VolumeBarReference[3];
+		break;
+		case 0:
+			volumeLevel.frameName = VolumeBarReference[4];
+		break;
+	}
 };
 
 function jackpotIncrement(){
@@ -588,6 +609,10 @@ function playFrames(){
 		_posX = _posX+82;
 	};
 };
+
+
+
+
 
 function clearWinFrame(){	
 	buttonsEnabled(true);
